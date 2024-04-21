@@ -1,0 +1,23 @@
+{
+    "name": "app/restful_api",
+    "description": "first restful api for me",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/",
+            "System\\": "./"
+        },
+        "files" : ["src/helpers/functions.php", "src/helpers/response.php", "src/routes/api.php"]
+    },
+    "authors": [
+        {
+            "name": "Tôn Thành Tâm",
+            "email": "tamtt1512@gmail.com"
+        }
+    ],
+    "require": {
+        "pecee/simple-router": "5.4.1.7",
+        "vlucas/phpdotenv": "^5.6",
+        "rakit/validation": "^1.4"
+    }
+}
