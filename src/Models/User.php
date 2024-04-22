@@ -34,8 +34,8 @@ class User extends Model {
       }
       return $user->count();
    }
-   public function getUser($id) {
-      return $this->db->table('users')->select('id, fullname, email, status, created_at, updated_at')->where('id', '=', $id)->get();
+   public function getUser($value, $field = 'id') {
+      return $this->db->table('users')->select('id, fullname, email, status, created_at, updated_at')->where($field, '=', $value)->first();
    }
    public function checkExist($field = 'id', $value, $id = 0) {
       $count = $this->db->table('users')->where($field, '=', $value);
