@@ -100,6 +100,7 @@ class Database {
          $sql = "DELETE FROM $table WHERE $condition";
       }
       $this->resetQueryBuilder();
+      
       return $this->query($sql);
    }
 

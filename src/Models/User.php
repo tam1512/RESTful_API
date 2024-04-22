@@ -4,7 +4,7 @@ use System\Core\Model;
 class User extends Model {
    public function getUsers($options = []) {
       extract($options);
-      $user = $this->db->table('users')->orderBy($sort, $order);
+      $user = $this->db->table('users')->select('id, fullname, email, status, created_at, updated_at')->orderBy($sort, $order);
       if($status === 1 || $status === 0 || $status === '1' || $status === '0') {
          $user->where('status', '=', $status);
       }
@@ -35,10 +35,14 @@ class User extends Model {
       return $user->count();
    }
    public function getUser($id) {
-      return $this->db->table('users')->where('status', '=', 1)->where('id', '=', $id)->get();
+      return $this->db->table('users')->select('id, fullname, email, status, created_at, updated_at')->where('id', '=', $id)->get();
    }
-   public function checkExist($field, $value) {
-      $count = $this->db->table('users')->where($field, '=', $value)->count();
+   public function checkExist($field = 'id', $value, $id = 0) {
+      $count = $this->db->table('users')->where($field, '=', $value);
+      if($id > 0) {
+         $count = $count->where('id', '!=', $id);
+      }
+      $count = $count->count();
       return $count > 0;
    }
 
@@ -51,5 +55,16 @@ class User extends Model {
          unset($user['password']);
       }
       return $user;
+   }
+
+   public function updateUser($data, $value, $field = "id") {
+      return $this->db->table('users')->where($field, "=", $value)->update($data);
+   }
+
+   public function deleteUser($id) {
+      return $this->db->table('users')->where("id", "=", $id)->delete();
+   }
+   public function deleteUsers($ids) {
+      return $this->db->table('users')->whereIn('id', $ids)->delete();
    }
 }

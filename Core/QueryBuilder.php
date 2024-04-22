@@ -61,6 +61,14 @@ trait QueryBuilder {
       return $this;
    }
 
+   public function whereIn($field, $array) {
+      if(empty($this->where) || $this->where == ' (') {
+         $this->where .= " WHERE $field IN (".implode(',', $array).")";
+      } else {
+         $this->where .= " AND $field IN (".implode(',', $array).")";
+      }
+      return $this;
+   }
    public function limit($number, $offset = 0) {
       $this->limit = " LIMIT $offset, $number";
       return $this;
@@ -103,7 +111,6 @@ trait QueryBuilder {
       $this->sqlPaginate = $this->handleWhereGroup("SELECT $this->field FROM $this->tableName $this->join $this->where;");
 
       $sql = $this->handleWhereGroup($sql);
-      // echo $sql;
       $this->resetQueryBuilder();
       return $this->getRaw($sql);
    }
