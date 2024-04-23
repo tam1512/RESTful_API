@@ -153,7 +153,7 @@ class User {
          if(input('password')) {
             $data['password'] = password_hash(input('password'), PASSWORD_DEFAULT);
          }
-         if(input('status') == 0 || input('status' == 1)) {
+         if(input('status') == 0 || input('status') == 1) {
             $data['status'] = input('status');
          }
          try {

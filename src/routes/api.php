@@ -1,10 +1,15 @@
 <?php
 use App\Middlewares\AuthMiddleware;
+use App\Middlewares\AuthorMiddleware;
 use App\Middlewares\RateLimitMiddleware;
 use Pecee\SimpleRouter\SimpleRouter as Route;
 
 Route::group(['prefix'=>'api'], function() {
    Route::group(['prefix'=>'v1', 'namespace'=>'App\Controllers\V1'], function() {
+      Route::post('auth/login', 'Auth@login');
+      Route::group(['middleware'=>AuthorMiddleware::class], function() {
+         Route::get('auth/profile', 'Auth@profile');
+      });
       Route::group(['middleware'=>[RateLimitMiddleware::class, AuthMiddleware::class]], function() {
          Route::get('/users', 'User@index');
          Route::get('/users/{id}', 'User@find');
