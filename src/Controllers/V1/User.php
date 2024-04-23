@@ -2,7 +2,7 @@
 namespace App\Controllers\V1;
 use App\Models\User as UserModel;
 use Rakit\Validation\Validator;
-
+use App\Transformers\User as UserTransformer;
 
 class User {
    private static $model;
@@ -25,7 +25,8 @@ class User {
       }
       $count = self::$model->countRows(compact('sort', 'order', 'status', 'query'));
       $users = self::$model->getUsers(compact('sort', 'order', 'status', 'query', 'limit', 'offset'));
-      return successResponse(data:$users, meta:$limit ? [
+      $userTransformer = new UserTransformer($users, true);
+      return successResponse(data:$userTransformer, meta:$limit ? [
          'current_page' => $page,
          'total_rows' => $count,
          'total_pages' => ceil($count/$limit)
@@ -35,7 +36,8 @@ class User {
    public function find($id) {
       $user = self::$model->getUser($id);
       if(!empty($user)) {
-         return successResponse(data:$user);
+         $userTransformer = new UserTransformer($user);
+         return successResponse(data:$userTransformer);
       }
       return errorResponse(404, 'User not found', [
          'error' => 'User not found',
@@ -84,7 +86,8 @@ class User {
             'password' => password_hash(input('password'), PASSWORD_DEFAULT)
          ];
          $user = self::$model->create($data);
-         return successResponse(data:$user, status:201);
+         $userTransformer = new UserTransformer($user);
+         return successResponse(data:$userTransformer, status:201);
       }
    }
    public function update($id) {
@@ -150,7 +153,7 @@ class User {
          if(input('password')) {
             $data['password'] = password_hash(input('password'), PASSWORD_DEFAULT);
          }
-         if(input('status')) {
+         if(input('status') == 0 || input('status' == 1)) {
             $data['status'] = input('status');
          }
          try {
@@ -158,7 +161,8 @@ class User {
             if($status) {
                $user = self::$model->getUser($id);
                if($user) {
-                  return successResponse(data:$user);
+                  $userTransformer = new UserTransformer($user);
+                  return successResponse(data:$userTransformer);
                } else {
                   return errorResponse(404, 'User not found', [
                      'id' => $id
@@ -210,7 +214,7 @@ class User {
          $data['email'] = input('email');
       }
 
-      if(input('status')) {
+      if(input('status') == 0 || input('status') == 1) {
          $rules['status'] = [
             function ($status) {
                $include = [0, 1];
@@ -249,7 +253,8 @@ class User {
             if($status) {
                $user = self::$model->getUser($id);
                if($user) {
-                  return successResponse(data:$user);
+                  $userTransformer = new UserTransformer($user);
+                  return successResponse(data:$userTransformer);
                } else {
                   return errorResponse(404, 'User not found', [
                      'id' => $id
@@ -269,7 +274,8 @@ class User {
       if($user) {
          $status = self::$model->deleteUser($id);
          if($status) {
-            return successResponse(data:$user);
+            $userTransformer = new UserTransformer($user);
+            return successResponse(data:$userTransformer);
          }
          return errorResponse(500, 'Server Error');
       }
