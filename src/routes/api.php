@@ -7,9 +7,12 @@ use Pecee\SimpleRouter\SimpleRouter as Route;
 Route::group(['prefix'=>'api'], function() {
    Route::group(['prefix'=>'v1', 'namespace'=>'App\Controllers\V1'], function() {
       Route::post('auth/login', 'Auth@login');
+      Route::post('auth/refresh-token', 'Auth@refresh');
       Route::group(['middleware'=>AuthorMiddleware::class], function() {
          Route::get('auth/profile', 'Auth@profile');
          Route::get('/my-courses', 'User@courses');
+         Route::get('auth/logout', 'Auth@logout');
+
       });
       Route::group(['middleware'=>[RateLimitMiddleware::class, AuthMiddleware::class]], function() {
          Route::get('/users', 'User@index');
