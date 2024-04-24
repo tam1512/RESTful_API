@@ -16,7 +16,7 @@ Route::group(['prefix'=>'api'], function() {
          Route::get('auth/logout', 'Auth@logout');
 
       });
-      Route::group(['middleware'=>[RateLimitMiddleware::class, AuthMiddleware::class]], function() {
+      Route::group(['middleware'=>[RateLimitMiddleware::class]], function() {
          Route::get('/users', 'User@index');
          Route::get('/users/{id}', 'User@find');
          Route::post('/users', 'User@store');

@@ -4,7 +4,7 @@ use System\Core\Model;
 class User extends Model {
    public function getUsers($options = []) {
       extract($options);
-      $user = $this->db->table('users')->select('id, fullname, email, status, created_at, updated_at')->orderBy($sort, $order);
+      $user = $this->db->table('users')->orderBy($sort, $order);
       if($status === 1 || $status === 0 || $status === '1' || $status === '0') {
          $user->where('status', '=', $status);
       }

@@ -7,7 +7,7 @@
             "App\\": "src/",
             "System\\": "./"
         },
-        "files" : ["src/helpers/functions.php", "src/helpers/response.php", "src/routes/api.php"]
+        "files" : ["src/helpers/functions.php", "src/helpers/response.php", "src/routes/api.php", "src/helpers/cors.php"]
     },
     "authors": [
         {
