@@ -10,6 +10,8 @@ Route::group(['prefix'=>'api'], function() {
       Route::post('auth/refresh-token', 'Auth@refresh');
       Route::group(['middleware'=>AuthorMiddleware::class], function() {
          Route::get('auth/profile', 'Auth@profile');
+         //update ở trường hợp này vì có file nên PATCH VÀ PUT không hoạt động phải sử dụng POST
+         Route::post('auth/profile', 'Auth@updateProfile');
          Route::get('/my-courses', 'User@courses');
          Route::get('auth/logout', 'Auth@logout');
 

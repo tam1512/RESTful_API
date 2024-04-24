@@ -5,7 +5,13 @@ use App\Models\RefreshToken;
 use App\Models\User;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use Rakit\Validation\Validator;
 class Auth {
+
+   private static $userModel;
+   public function __construct() {
+      self::$userModel = new User();
+   }
    public function login() {
       $email = input('email');
       $password = input('password');
@@ -13,8 +19,8 @@ class Auth {
       if(!$email || !$password) {
          return errorResponse(400, "Vui lòng nhập email và mật khẩu.");
       }
-      $userModel = new User();
-      $user = $userModel->getUser($email, 'email');
+    
+      $user = self::$userModel->getUser($email, 'email');
       if(!$user) {
          return errorResponse(404, "Tài khoản không tồn tại.");
       }
@@ -58,6 +64,99 @@ class Auth {
    public function profile() {
       return successResponse(data:\System\Core\Auth::getUser());
    }
+
+   public function updateProfile() {
+      $id = \System\Core\Auth::getUser()['id'];
+      $validator = new Validator;
+      $validator->setMessages([
+         'required' => ':attribute bắt buộc phải nhập.',
+         'email:email' => ':attribute không hợp lệ.',
+         'password:min' => ':attribute phải từ :min ký tự',
+         'confirm_password:same' => ':attribute không trùng khớp'
+      ]);
+
+      $rules = [
+         'fullname' => 'required',
+         'email' => [
+            'required', 
+            'email',
+            function($email) use($id) {
+               $check = self::$userModel->checkExist('email', $email, $id); 
+               if($check) {
+                  return ':attribute đã tồn tại.';
+               }
+               return true;
+            }
+         ]
+      ];
+      if(input('password')) {
+         $rules = array_merge($rules, [
+         'password' => 'min:6',
+         'confirm_password' => 'required|same:password'
+         ]);
+      }
+      $avatarPath = "";
+      $avatar = input()->file('avatar');
+      if($avatar) {
+         $allow = ["image/jpeg", "image/png", "image/gif"];
+         $type = $avatar->getMime();
+         if(in_array($type, $allow)) {
+            $destinationFilname = sprintf('%s.%s', uniqid(), $avatar->getExtension());
+            $avatarPath = sprintf('/uploads/%s', $destinationFilname);
+            $avatar->move(sprintf(".".$avatarPath));
+         } else {
+            $rules['avatar'] = [
+               function(){
+                  return ":attribute không hợp lệ";
+               }
+            ];
+         }
+      }
+
+      $validation = $validator->make(input()->all(), $rules);
+      $validation->setAliases([
+         'fullname' => 'Tên',
+         'email' => 'Email',
+         'avatar'=> 'Ảnh đại diện',
+         'password' => 'Mật khẩu',
+         'confirm_password' => 'Nhập lại mật khẩu',
+      ]);
+      $validation->validate();
+
+      if($validation->fails()) {
+         $errors = $validation->errors();
+         return errorResponse(404, 'Bad request', $errors->firstOfAll());
+      } else {
+         $data = [
+            'fullname' => input('fullname'),
+            'email' => input('email')
+         ];
+         if(input('password')) {
+            $data['password'] = password_hash(input('password'), PASSWORD_DEFAULT);
+         }
+         if($avatarPath) {
+            $data['avatar'] = getPrefixLink().$avatarPath; 
+         }
+         try {
+            $status = self::$userModel->updateUser($data, $id);
+            if($status) {
+               $user = self::$userModel->getUser($id);
+               if($user) {
+                  $userTransformer = new \App\Transformers\User($user);
+                  return successResponse(data:$userTransformer);
+               } else {
+                  return errorResponse(404, 'User not found', [
+                     'id' => $id
+                  ]);
+               }
+            } else {
+               return errorResponse(500, 'Server Error');
+            }
+         } catch (\Exception $e) {
+            return errorResponse(500, 'Server Error');
+         }
+      }
+   } 
 
    public function refresh() {
       $refreshToken = input('refresh_token');

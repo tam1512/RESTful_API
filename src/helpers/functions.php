@@ -88,3 +88,17 @@ function csrf_token(): ?string
 function env($dotenv) {
    return $_ENV[$dotenv];
 }
+
+function getPrefixLink() {
+    //xử lý lấy ra web root
+    if(!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS']=='on') {
+    $protocol = 'https://';
+    } else {
+    $protocol = 'http://';
+    }
+
+    $docRoot =  str_replace('\\','/',$_SERVER['DOCUMENT_ROOT']);
+    $pathRoot = str_replace('\\','/',_WEB_PATH_ROOT);
+    $path = preg_replace('~^'.$docRoot.'~', '', $pathRoot);
+    return $protocol.$_SERVER['HTTP_HOST'].$path;
+}
