@@ -9,6 +9,7 @@ Route::group(['prefix'=>'api'], function() {
       Route::post('auth/login', 'Auth@login');
       Route::group(['middleware'=>AuthorMiddleware::class], function() {
          Route::get('auth/profile', 'Auth@profile');
+         Route::get('/my-courses', 'User@courses');
       });
       Route::group(['middleware'=>[RateLimitMiddleware::class, AuthMiddleware::class]], function() {
          Route::get('/users', 'User@index');

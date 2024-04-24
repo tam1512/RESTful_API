@@ -24,8 +24,9 @@ class AuthorMiddleware implements IMiddleware {
          } else if(!$user['status']) {
             errorResponse(404, 'User blocked');
          } else {
-            $userTransformer = new \App\Transformers\User($user);
-            Auth::setUser($userTransformer);
+            // $userTransformer = new \App\Transformers\User($user);
+            // Auth::setUser((array)$userTransformer);
+            Auth::setUser($user);
          }
       } catch(\Exception $e) {
          errorResponse(401, 'Unauthorize');

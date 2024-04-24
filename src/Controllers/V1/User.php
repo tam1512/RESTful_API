@@ -3,6 +3,7 @@ namespace App\Controllers\V1;
 use App\Models\User as UserModel;
 use Rakit\Validation\Validator;
 use App\Transformers\User as UserTransformer;
+use System\Core\Auth;
 
 class User {
    private static $model;
@@ -301,5 +302,11 @@ class User {
          return successResponse(data:$ids);
       }
       return errorResponse(500, 'Server Error');
+   }
+
+   public function courses() {
+      $userId = Auth::getUser()['id'];
+      $courses = self::$model->courses($userId);
+      return successResponse(data:$courses);
    }
 }

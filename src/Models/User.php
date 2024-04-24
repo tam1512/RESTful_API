@@ -67,4 +67,8 @@ class User extends Model {
    public function deleteUsers($ids) {
       return $this->db->table('users')->whereIn('id', $ids)->delete();
    }
+
+   public function courses($userId) {
+      return $this->db->table('courses as c')->join('users_courses as uc', "uc.course_id = c.id")->where('uc.user_id', '=', $userId)->get();
+   }
 }
